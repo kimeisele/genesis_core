@@ -26,6 +26,7 @@ from . import entity as entity_module
 @dataclass
 class Transform:
     """Transform definition between schemas."""
+
     name: str
     from_schema: str
     to_schema: str
@@ -37,10 +38,7 @@ _transforms: dict[str, Transform] = {}
 
 
 def define_transform(
-    name: str,
-    from_schema: str,
-    to_schema: str,
-    logic: Callable[[entity_module.Entity], dict]
+    name: str, from_schema: str, to_schema: str, logic: Callable[[entity_module.Entity], dict]
 ) -> Transform:
     """
     Define named transformation between schemas.
@@ -62,12 +60,7 @@ def define_transform(
     if name in _transforms:
         raise KeyError(f"Transform '{name}' already defined")
 
-    transform = Transform(
-        name=name,
-        from_schema=from_schema,
-        to_schema=to_schema,
-        logic=logic
-    )
+    transform = Transform(name=name, from_schema=from_schema, to_schema=to_schema, logic=logic)
     _transforms[name] = transform
     return transform
 

@@ -13,14 +13,14 @@ This manifest documents the frozen state of Genesis Core modules. These modules 
 | Module | Status | SHA-256 Hash |
 |--------|--------|--------------|
 | `genesis_core/__init__.py` | ✅ Frozen | `5cb515b96ae34a121fe76e80a5330c10c1fbe27035e3ba01dfb9392241da791f` |
-| `genesis_core/io.py` | ✅ Frozen | `d123e3b46f49b67f62fa0aa4cec2de1cbb6e7409a4774aa80f083ea964e71eba` |
+| `genesis_core/io.py` | ✅ Frozen | `82de793900f734f4ed35c83c46b35ba7b894082e69c51eaf97de1e4cc3f2d1f8` |
 | `genesis_core/storage.py` | ✅ Frozen | `4f4c224a2affdb59563a8fe7d04eed9086dd25a3bf90222a8ca7ceb01e8c7ed2` |
-| `genesis_core/schema.py` | ✅ Frozen | `805ee369d3b9fbfb7ff3f574044733fa2016e44818b2feab3fbb599ea25315d1` |
-| `genesis_core/entity.py` | ✅ Frozen | `10626db0d39fa827ebae8927a19d561e4dff65248cf1341b5872807e7b6595ea` |
-| `genesis_core/transform.py` | ✅ Frozen | `063a8b2eda0c3c9a1e25dd6cc838856652ff577de7818c06556044e5b14f8568` |
-| `genesis_core/process.py` | ✅ Frozen | `c73749c01a693e8cdbda40f233433c27ecfe3b79204a7276e581d7e84ec2d94c` |
-| `genesis_core/validation.py` | ✅ Frozen | `6124968b2ec871e5a0a22abdac098c36c5036dd80a8398b06c49bf88770007aa` |
-| `genesis_core/identity.py` | ✅ Frozen | `d578c373d720edbaee629d829cb1865eca803d79a2bf55df9b0bfa1f5b5e0ca7` |
+| `genesis_core/schema.py` | ✅ Frozen | `38af14afd87c54e72eef2ab60230d6058ba95920001599ddb932c2367ecee59b` |
+| `genesis_core/entity.py` | ✅ Frozen | `18e87d4dc03f91d7e2606141eadfff92189f22f954d55f1ad08802f371c252cf` |
+| `genesis_core/transform.py` | ✅ Frozen | `135695eb7875716e61f8fd913731eb4f48dbd03cffb93791b930879c318997a4` |
+| `genesis_core/process.py` | ✅ Frozen | `4bec7ad2e852f61b47b558642a24ea93f3c607d91dda257049929a4a7b5162fc` |
+| `genesis_core/validation.py` | ✅ Frozen | `ecdb3507b7bc1dc836b59a1f55d6b7b04c579a80c57fa5281cf80feb9339c6ef` |
+| `genesis_core/identity.py` | ✅ Frozen | `0c0a24b94a63b855f5de05c0ff6c00536b7beedec1d79b84669b35d329c86382` |
 
 ## Extension Policy
 

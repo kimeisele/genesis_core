@@ -38,7 +38,7 @@ def read_text(path: Path) -> str:
         FileNotFoundError: If file does not exist
         IOError: If file cannot be read
     """
-    return Path(path).read_text(encoding='utf-8')
+    return Path(path).read_text(encoding="utf-8")
 
 
 def write_text(path: Path, content: str) -> None:
@@ -58,7 +58,7 @@ def write_text(path: Path, content: str) -> None:
         IOError: If file cannot be written
     """
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    Path(path).write_text(content, encoding='utf-8')
+    Path(path).write_text(content, encoding="utf-8")
 
 
 def read_json(path: Path) -> dict:

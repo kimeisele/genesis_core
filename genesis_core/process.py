@@ -26,6 +26,7 @@ from . import entity as entity_module
 @dataclass
 class Process:
     """Process definition with ordered steps."""
+
     name: str
     steps: list[str]
 
@@ -62,8 +63,7 @@ def define_process(name: str, steps: list[str]) -> Process:
 
 
 def register_step_handler(
-    step_name: str,
-    handler: Callable[[entity_module.Entity], entity_module.Entity]
+    step_name: str, handler: Callable[[entity_module.Entity], entity_module.Entity]
 ) -> None:
     """
     Register handler function for a step.

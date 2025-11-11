@@ -24,6 +24,7 @@ from dataclasses import dataclass
 @dataclass
 class Schema:
     """Schema definition with typed fields."""
+
     name: str
     fields: dict[str, type]
 
@@ -31,6 +32,7 @@ class Schema:
 @dataclass
 class ValidationResult:
     """Result of schema validation."""
+
     is_valid: bool
     errors: list[str]
 

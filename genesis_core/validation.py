@@ -26,6 +26,7 @@ from . import entity as entity_module
 @dataclass
 class Rule:
     """Validation rule definition."""
+
     name: str
     condition: Callable[[entity_module.Entity], bool]
 
@@ -33,6 +34,7 @@ class Rule:
 @dataclass
 class ValidationResult:
     """Result of validation."""
+
     is_valid: bool
     errors: list[str]
 
