@@ -21,6 +21,12 @@ wheels/
 *.egg
 MANIFEST
 
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
 # Environments
 venv/
 env/
@@ -50,10 +56,6 @@ Thumbs.db
 .coverage.*
 htmlcov/
 .pytest_cache/
-.tox/
-.nox/
-coverage.xml
-*.cover
 
-# Logs
-*.log
+# MyPy
+.mypy_cache/

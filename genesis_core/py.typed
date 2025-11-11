@@ -1,2 +1,2 @@
-# PEP 561 marker file for type checking support
-# This file indicates that genesis_core package includes type hints
+# PEP 561 marker file
+# This file indicates that the genesis_core package supports type hints

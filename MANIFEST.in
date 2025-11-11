@@ -1,27 +1,25 @@
-# Include documentation and metadata
+# Include documentation
 include README.md
-include LICENSE
 include FROZEN_MANIFEST.md
 include GENESIS_CORE_SPEC.md
 include PROJECT_STRUCTURE.md
+include LICENSE
 
-# Include package configuration
+# Include config files
 include pyproject.toml
 include setup.py
-include requirements.txt
 
-# Include tests
-recursive-include tests *.py
-
-# Include scripts
-recursive-include scripts *.py
-
-# Include type stubs marker
-include genesis_core/py.typed
-
-# Exclude unnecessary files
+# Exclude development and build artifacts
 exclude .gitignore
-exclude test_*.py
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
+recursive-exclude tests *
+recursive-exclude scripts *
 recursive-exclude extensions *
+recursive-exclude examples *
+recursive-exclude __pycache__ *
+recursive-exclude *.egg-info *
+recursive-exclude .git *
+recursive-exclude .github *
+
+# Include type stubs if any
+recursive-include genesis_core *.pyi
+recursive-include genesis_core py.typed

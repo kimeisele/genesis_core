@@ -85,54 +85,60 @@ my_project/
 
 ---
 
-## Quick Start
+## Installation
 
-### 1. Install
+### Option 1: Install from PyPI (Recommended)
 
 ```bash
 pip install genesis-core
 ```
 
-Or install from source:
+### Option 2: Install from GitHub
 
 ```bash
-git clone https://github.com/yourusername/genesis-core.git
-cd genesis-core
+pip install git+https://github.com/kimeisele/genesis_core.git
+```
+
+### Option 3: Install from Source
+
+```bash
+git clone https://github.com/kimeisele/genesis_core.git
+cd genesis_core
 pip install -e .
 ```
 
 Genesis Core has **zero external dependencies**. Pure Python stdlib.
 
-### 2. Basic Usage
+---
+
+## Quick Start
+
+### 1. Import and Use
 
 ```python
-from genesis_core import io, storage, schema, entity
+from genesis_core import entity, schema, storage
 
 # Define a schema
-user_schema = {
-    "name": "User",
-    "fields": {
-        "id": {"type": "string", "required": True},
-        "name": {"type": "string", "required": True},
-        "email": {"type": "string", "required": True},
-    }
-}
-schema.define_schema("User", user_schema)
-
-# Create and store an entity
-user = entity.create_entity("User", {
-    "id": "user-123",
-    "name": "Alice",
-    "email": "alice@example.com"
+user_schema = schema.define_schema("User", {
+    "name": str,
+    "email": str,
+    "age": int
 })
-storage.store(user["id"], user)
 
-# Retrieve it
-retrieved = storage.retrieve("user-123")
-print(retrieved["name"])  # Alice
+# Create an entity
+user = entity.create_entity("User", {
+    "name": "Alice",
+    "email": "alice@example.com",
+    "age": 30
+})
+
+# Store it
+storage.store(f"user:{user.id}", user)
+
+print(f"Created user: {user.id}")
 ```
 
-### 3. Run Tests
+### 2. Run Tests
 
 ```bash
 # Install dev dependencies
@@ -494,6 +500,153 @@ Genesis Core is designed to support:
 
 ---
 
+## Using Genesis Core in Your Project
+
+### Create a New Project
+
+```bash
+# Create project directory
+mkdir my_awesome_project
+cd my_awesome_project
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # or: venv\Scripts\activate on Windows
+
+# Install Genesis Core
+pip install genesis-core
+
+# Create your extension
+mkdir my_extension
+```
+
+### Project Structure
+
+```
+my_awesome_project/
+├── venv/                     # Virtual environment
+├── my_extension/             # Your extension code
+│   ├── __init__.py
+│   ├── schemas.py           # Define your schemas using core.schema
+│   ├── business_logic.py    # Use core.entity, core.process
+│   └── main.py
+├── requirements.txt          # genesis-core==1.0.0
+└── README.md
+```
+
+### requirements.txt
+
+```
+# Core (zero dependencies)
+genesis-core==1.0.0
+
+# Your extension dependencies
+requests>=2.31.0
+pillow>=10.0.0
+typer>=0.9.0
+```
+
+### Example Extension
+
+```python
+# my_extension/schemas.py
+from genesis_core import schema
+
+def setup_schemas():
+    """Define your domain schemas."""
+    product_schema = schema.define_schema("Product", {
+        "name": str,
+        "price": int,
+        "description": str,
+        "in_stock": int
+    })
+
+    order_schema = schema.define_schema("Order", {
+        "product_id": str,
+        "quantity": int,
+        "customer_email": str,
+        "status": str
+    })
+
+    return {"Product": product_schema, "Order": order_schema}
+
+
+# my_extension/business_logic.py
+from genesis_core import entity, storage, validation
+
+def create_product(name: str, price: int, description: str, stock: int):
+    """Create a new product."""
+    product = entity.create_entity("Product", {
+        "name": name,
+        "price": price,
+        "description": description,
+        "in_stock": stock
+    })
+
+    storage.store(f"product:{product.id}", product)
+    return product
+
+
+def place_order(product_id: str, quantity: int, email: str):
+    """Place an order for a product."""
+    # Validate product exists
+    product = storage.retrieve(f"product:{product_id}")
+
+    # Check stock
+    if product.data["in_stock"] < quantity:
+        raise ValueError("Insufficient stock")
+
+    # Create order
+    order = entity.create_entity("Order", {
+        "product_id": product_id,
+        "quantity": quantity,
+        "customer_email": email,
+        "status": "pending"
+    })
+
+    # Update stock
+    entity.update_entity(product.id, {
+        "in_stock": product.data["in_stock"] - quantity
+    })
+
+    storage.store(f"order:{order.id}", order)
+    return order
+
+
+# my_extension/main.py
+from . import schemas, business_logic
+
+if __name__ == "__main__":
+    # Setup
+    schemas.setup_schemas()
+
+    # Use
+    product = business_logic.create_product(
+        name="Laptop",
+        price=999,
+        description="Powerful laptop",
+        stock=10
+    )
+
+    order = business_logic.place_order(
+        product_id=product.id,
+        quantity=2,
+        email="customer@example.com"
+    )
+
+    print(f"Order {order.id} placed successfully!")
+```
+
+### Key Principles
+
+1. **Import from genesis_core** - Never copy core code
+2. **Define your schemas** - Use `core.schema.define_schema()`
+3. **Use core primitives** - `entity`, `storage`, `process`, etc.
+4. **Add dependencies freely** - Your extension can use any library
+5. **Never modify core** - Always wrap, never change
+
+---
+
 ## Documentation
 
 - **GENESIS_CORE_SPEC.md** - Complete module specifications
@@ -552,7 +705,7 @@ Extensions are welcome! Submit PRs for:
 
 ## License
 
-[Add your license here]
+MIT License - See [LICENSE](LICENSE) file for details.
 
 ---
 
