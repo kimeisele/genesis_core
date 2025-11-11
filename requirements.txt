@@ -1,0 +1,10 @@
+# Genesis Core has ZERO runtime dependencies
+# This is intentional - the core must be completely self-contained and frozen.
+#
+# If you need additional dependencies, create them in your extension layer,
+# not in the core.
+#
+# Example for extensions:
+# genesis-core==1.0.0
+# requests>=2.31.0  # For your extension's API calls
+# pillow>=10.0.0    # For your extension's image processing
