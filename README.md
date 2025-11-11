@@ -25,11 +25,33 @@ Genesis Core is a set of **8 fundamental, immutable modules** that serve as eter
 
 ---
 
+## Installation
+
+### From PyPI (Recommended)
+
+```bash
+pip install genesis-core
+```
+
+### From Source
+
+```bash
+git clone https://github.com/yourusername/genesis-core.git
+cd genesis-core
+pip install -e .
+```
+
+### Requirements
+
+- Python 3.10+
+- **Zero runtime dependencies** (pure stdlib)
+
 ## Architecture
 
 ```
-genesis_core/
+genesis-core/               # PyPI Package
 ├── genesis_core/           # FROZEN CORE (never modify)
+│   ├── __init__.py
 │   ├── io.py              # File operations
 │   ├── storage.py         # Key-value storage
 │   ├── schema.py          # Data structure definitions
@@ -39,51 +61,108 @@ genesis_core/
 │   ├── validation.py      # Rule engine
 │   └── identity.py        # Auth/permissions
 │
-├── extensions/            # EXTENSIONS (add features here)
-│   ├── storage_file.py    # File-based storage
-│   └── example_agency/    # Complete app example
+├── tests/                 # Test suite
+│   ├── test_core_modules.py
+│   └── test_frozen_integrity.py
 │
 ├── scripts/
 │   └── verify_frozen.py   # Core integrity checker
 │
+├── setup.py               # Package configuration
+├── pyproject.toml         # Modern Python packaging
 ├── GENESIS_CORE_SPEC.md   # Module specifications
 ├── FROZEN_MANIFEST.md     # Freeze enforcement
 └── README.md              # This file
+
+# Your Project (uses genesis-core)
+my_project/
+├── requirements.txt       # genesis-core==1.0.0
+├── my_app/
+│   ├── models.py         # from genesis_core import entity, schema
+│   └── storage.py        # from genesis_core import storage
+└── extensions/           # Your custom extensions
 ```
 
 ---
 
 ## Quick Start
 
-### 1. Install (No Dependencies!)
+### 1. Install
 
 ```bash
-git clone <repo>
-cd genesis_core
+pip install genesis-core
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/yourusername/genesis-core.git
+cd genesis-core
+pip install -e .
 ```
 
 Genesis Core has **zero external dependencies**. Pure Python stdlib.
 
-### 2. Run Tests
+### 2. Basic Usage
+
+```python
+from genesis_core import io, storage, schema, entity
+
+# Define a schema
+user_schema = {
+    "name": "User",
+    "fields": {
+        "id": {"type": "string", "required": True},
+        "name": {"type": "string", "required": True},
+        "email": {"type": "string", "required": True},
+    }
+}
+schema.define_schema("User", user_schema)
+
+# Create and store an entity
+user = entity.create_entity("User", {
+    "id": "user-123",
+    "name": "Alice",
+    "email": "alice@example.com"
+})
+storage.store(user["id"], user)
+
+# Retrieve it
+retrieved = storage.retrieve("user-123")
+print(retrieved["name"])  # Alice
+```
+
+### 3. Run Tests
 
 ```bash
-# Test core functionality
-python3 test_core_basic.py
+# Install dev dependencies
+pip install -e ".[dev]"
 
-# Test extensions
-python3 test_extension.py
+# Run tests
+pytest tests/
 
 # Verify frozen contract
-python3 scripts/verify_frozen.py
+python scripts/verify_frozen.py
 ```
 
-### 3. Try the Example Agency
+### 4. Build Your Extensions
 
-```bash
-python3 extensions/example_agency/main.py
+```python
+# my_app/storage_extended.py
+from genesis_core import storage as core_storage
+import json
+from pathlib import Path
+
+def store_to_file(key: str, data: dict):
+    """Extended storage with file persistence"""
+    # Use core storage
+    core_storage.store(key, data)
+
+    # Add file persistence
+    Path("data").mkdir(exist_ok=True)
+    with open(f"data/{key}.json", "w") as f:
+        json.dump(data, f)
 ```
-
-This demonstrates a complete recruiting agency built **entirely** using Genesis Core, with zero core modifications.
 
 ---
 
@@ -489,26 +568,74 @@ The Genesis Core is intentionally simple, deliberately constrained, and permanen
 
 ## Get Started
 
+### Install
+
 ```bash
-# Clone
-git clone <repo>
-cd genesis_core
+pip install genesis-core
+```
 
-# Test
-python3 test_core_basic.py
-python3 test_extension.py
+### Use in Your Project
 
-# Verify
-python3 scripts/verify_frozen.py
+```python
+# my_project/main.py
+from genesis_core import storage, entity, schema
 
-# Build
-# Create your extension in extensions/my_app/
-# Import from genesis_core
-# Never modify the core
+# Define schemas
+schema.define_schema("Product", {
+    "name": "Product",
+    "fields": {
+        "id": {"type": "string", "required": True},
+        "name": {"type": "string", "required": True},
+        "price": {"type": "number", "required": True},
+    }
+})
 
-# Ship
-# Deploy with confidence
-# The core won't break
+# Create entities
+product = entity.create_entity("Product", {
+    "id": "prod-001",
+    "name": "Widget",
+    "price": 29.99
+})
+
+# Store and retrieve
+storage.store(product["id"], product)
+retrieved = storage.retrieve("prod-001")
+print(f"Product: {retrieved['name']} - ${retrieved['price']}")
+```
+
+### Build Extensions
+
+```python
+# my_project/extensions/storage_db.py
+from genesis_core import storage as core_storage
+import sqlite3
+
+def store(key: str, data: dict):
+    """Extended storage with SQLite persistence"""
+    # Use core
+    core_storage.store(key, data)
+
+    # Add database persistence
+    conn = sqlite3.connect("app.db")
+    # ... your DB logic here
+    conn.close()
+```
+
+### Deploy with Confidence
+
+```bash
+# requirements.txt
+genesis-core==1.0.0  # Frozen - will never break
 ```
 
 **Welcome to Genesis Core. The foundation that never changes.**
+
+---
+
+## Version History
+
+- **1.0.0** (2025-11-11) - Initial frozen release
+  - 8 core modules: io, storage, schema, entity, transform, process, validation, identity
+  - Zero dependencies
+  - Complete test coverage
+  - Frozen manifest and integrity checking

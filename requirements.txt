@@ -1,0 +1,11 @@
+# Genesis Core - Zero Dependencies
+#
+# Core modules are intentionally dependency-free to ensure:
+# - Maximum portability
+# - Zero supply chain risk
+# - Predictable behavior
+# - Easy auditing
+# - Long-term stability
+#
+# For development/testing dependencies, use:
+#   pip install -e ".[dev]"

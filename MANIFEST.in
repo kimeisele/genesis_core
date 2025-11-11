@@ -1,0 +1,27 @@
+# Include documentation and metadata
+include README.md
+include LICENSE
+include FROZEN_MANIFEST.md
+include GENESIS_CORE_SPEC.md
+include PROJECT_STRUCTURE.md
+
+# Include package configuration
+include pyproject.toml
+include setup.py
+include requirements.txt
+
+# Include tests
+recursive-include tests *.py
+
+# Include scripts
+recursive-include scripts *.py
+
+# Include type stubs marker
+include genesis_core/py.typed
+
+# Exclude unnecessary files
+exclude .gitignore
+exclude test_*.py
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude extensions *
