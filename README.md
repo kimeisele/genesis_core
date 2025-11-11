@@ -49,7 +49,7 @@ pip install -e .
 ## Architecture
 
 ```
-genesis-core/               # PyPI Package
+genesis-core/               # PyPI Package - FROZEN CORE ONLY
 ├── genesis_core/           # FROZEN CORE (never modify)
 │   ├── __init__.py
 │   ├── io.py              # File operations
@@ -61,9 +61,13 @@ genesis-core/               # PyPI Package
 │   ├── validation.py      # Rule engine
 │   └── identity.py        # Auth/permissions
 │
-├── tests/                 # Test suite
+├── tests/                 # Core test suite
 │   ├── test_core_modules.py
 │   └── test_frozen_integrity.py
+│
+├── examples/              # Example extensions (NOT part of package)
+│   ├── example_agency/    # Demo: Recruiting agency
+│   └── storage_file.py    # Demo: File-based storage
 │
 ├── scripts/
 │   └── verify_frozen.py   # Core integrity checker
@@ -74,13 +78,13 @@ genesis-core/               # PyPI Package
 ├── FROZEN_MANIFEST.md     # Freeze enforcement
 └── README.md              # This file
 
-# Your Project (uses genesis-core)
+# Your Project (uses genesis-core as dependency)
 my_project/
 ├── requirements.txt       # genesis-core==1.0.0
 ├── my_app/
 │   ├── models.py         # from genesis_core import entity, schema
 │   └── storage.py        # from genesis_core import storage
-└── extensions/           # Your custom extensions
+└── my_extensions/        # Your custom extensions
 ```
 
 ---
@@ -334,7 +338,7 @@ can_read = identity.check_permission("admin_1", "read", "user:123")
 ### Example: File-Based Storage
 
 ```python
-# extensions/storage_file.py
+# my_project/storage_file.py
 from genesis_core import storage as core_storage
 from pathlib import Path
 import pickle
@@ -364,12 +368,12 @@ def retrieve(key: str) -> Any:
 
 ### Example: Domain Application
 
-See `extensions/example_agency/` for a complete recruiting agency with:
+See `examples/example_agency/` in the repository for a complete recruiting agency with:
 - Domain schemas (Applicant, Job, Interview)
 - Validation rules (email, phone, CV)
 - Hiring workflow (validate → screen → interview)
 
-Run it: `python3 extensions/example_agency/main.py`
+Run it: `python3 examples/example_agency/main.py`
 
 ---
 
@@ -432,16 +436,16 @@ jobs:
 
 ### ✅ ALLOWED
 
-- Creating wrappers in `extensions/`
+- Creating wrappers in your project's extension modules
 - Building new functionality on top of core
 - Combining core primitives creatively
 - Creating domain-specific applications
 
 ### When You Need to "Fix" Core
 
-1. **Option A:** Create a wrapper in `extensions/[module]_patches.py`
+1. **Option A:** Create a wrapper in your project (e.g., `my_patches.py`)
 2. **Option B:** Build an adapter that works around the issue
-3. **Last Resort:** Get team approval to unfreeze (see FROZEN_MANIFEST.md)
+3. **Last Resort:** Submit an issue to unfreeze core (see FROZEN_MANIFEST.md)
 
 ---
 
@@ -474,17 +478,19 @@ The Genesis Core is successful if:
 
 ## Examples & Use Cases
 
-### 1. Recruiting Agency
+### 1. Recruiting Agency (Example)
 
-`extensions/example_agency/` - Complete hiring workflow with:
+`examples/example_agency/` - Complete hiring workflow demonstrating:
 - Applicant management
 - Job postings
 - Interview scheduling
 - Validation rules
 
-### 2. File-Based Persistence
+(This is a demo in the repo, not part of the installed package)
 
-`extensions/storage_file.py` - Wraps core storage with disk persistence
+### 2. File-Based Persistence (Example)
+
+`examples/storage_file.py` - Demonstrates how to wrap core storage with disk persistence
 
 ### 3. Your Application Here
 
@@ -651,7 +657,7 @@ if __name__ == "__main__":
 
 - **GENESIS_CORE_SPEC.md** - Complete module specifications
 - **FROZEN_MANIFEST.md** - Freeze enforcement and policies
-- **extensions/example_agency/** - Working application example
+- **examples/example_agency/** - Working application example (in repo)
 
 ---
 
@@ -663,19 +669,19 @@ No. The core is frozen at 8 modules. Create extensions instead.
 
 ### What if I find a bug in core?
 
-Create a wrapper in `extensions/[module]_patches.py` that fixes it. Or get team approval to unfreeze.
+Create a wrapper in your project (e.g., `patches.py`) that fixes it. Or submit an issue to unfreeze core.
 
 ### Can I optimize core performance?
 
-No. Optimization is a change. Create an optimized wrapper in extensions.
+No. Optimization is a change. Create an optimized wrapper in your project.
 
 ### What about external dependencies (boto3, requests, etc)?
 
-Core has zero dependencies. Extensions can have any dependencies they need.
+Core has zero dependencies. Your project extensions can have any dependencies they need.
 
 ### How do I handle database persistence?
 
-Create `extensions/storage_db.py` that wraps `core.storage`.
+Create a module in your project (e.g., `storage_db.py`) that wraps `core.storage`.
 
 ### Can I use Genesis Core in production?
 
@@ -693,13 +699,15 @@ Define them in your extensions using `core.schema`.
 
 Core is frozen. Do not submit PRs that modify `genesis_core/`.
 
-### For Extensions
+### For Examples
 
-Extensions are welcome! Submit PRs for:
-- New storage backends (S3, Redis, PostgreSQL)
-- Domain applications (CRM, CMS, etc.)
+Example extensions are welcome! Submit PRs for `examples/` folder:
+- New storage backends demos (S3, Redis, PostgreSQL)
+- Domain application demos (CRM, CMS, etc.)
 - Utilities and helpers
 - Documentation improvements
+
+Note: Examples are NOT part of the installed package, just demos in the repo.
 
 ---
 

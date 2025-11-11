@@ -15,8 +15,8 @@ setup(
     name="genesis-core",
     version="1.0.0",
 
-    # Package info
-    packages=find_packages(exclude=["tests", "scripts", "extensions", "examples"]),
+    # Package info - ONLY genesis_core module
+    packages=["genesis_core"],
     python_requires=">=3.10",
 
     # Dependencies

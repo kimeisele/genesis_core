@@ -43,10 +43,15 @@ Repository = "https://github.com/kimeisele/genesis_core"
 Issues = "https://github.com/kimeisele/genesis_core/issues"
 
 [tool.setuptools]
+# ONLY genesis_core package - nothing else
 packages = ["genesis_core"]
 
 [tool.setuptools.package-data]
 genesis_core = ["py.typed"]
+
+# Exclude examples, tests, scripts from build
+[tool.setuptools.packages.find]
+exclude = ["examples*", "tests*", "scripts*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
