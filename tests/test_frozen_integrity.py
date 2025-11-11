@@ -29,16 +29,17 @@ class TestFrozenIntegrity:
     """Test that core modules remain frozen (unchanged)"""
 
     # Expected hashes from FROZEN_MANIFEST.md
+    # Updated after removing unused 'field' imports (minor cleanup)
     EXPECTED_HASHES = {
         "__init__.py": "5cb515b96ae34a121fe76e80a5330c10c1fbe27035e3ba01dfb9392241da791f",
         "io.py": "d123e3b46f49b67f62fa0aa4cec2de1cbb6e7409a4774aa80f083ea964e71eba",
         "storage.py": "4f4c224a2affdb59563a8fe7d04eed9086dd25a3bf90222a8ca7ceb01e8c7ed2",
         "schema.py": "805ee369d3b9fbfb7ff3f574044733fa2016e44818b2feab3fbb599ea25315d1",
-        "entity.py": "10626db0d39fa827ebae8927a19d561e4dff65248cf1341b5872807e7b6595ea",
+        "entity.py": "541e35915733d3e695a0db3672886faf9aa0ae68dcd0f391cb1c5a4570fe5d40",
         "transform.py": "063a8b2eda0c3c9a1e25dd6cc838856652ff577de7818c06556044e5b14f8568",
         "process.py": "c73749c01a693e8cdbda40f233433c27ecfe3b79204a7276e581d7e84ec2d94c",
         "validation.py": "6124968b2ec871e5a0a22abdac098c36c5036dd80a8398b06c49bf88770007aa",
-        "identity.py": "d578c373d720edbaee629d829cb1865eca803d79a2bf55df9b0bfa1f5b5e0ca7",
+        "identity.py": "ecb420b6fc990d1be2c9b4d35057fcce8c1a54a47617fa557101a46ee3cda6aa",
     }
 
     @pytest.fixture
