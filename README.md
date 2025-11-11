@@ -1,8 +1,93 @@
 # Genesis Core
 
-**A frozen core architecture for building unbreakable systems.**
+**A conventional core architecture for building consistent AI-generated systems.**
 
-Version: 1.0.0 | Status: FROZEN | Date: 2025-11-11
+Version: 1.0.0 | Status: CONVENTIONAL | Date: 2025-11-11
+
+---
+
+## ⚠️ FOR AI ASSISTANTS - READ THIS FIRST ⚠️
+
+**If you are an AI assistant helping with this codebase, read this section carefully before making ANY changes.**
+
+### Project Philosophy
+
+This is a **Conventional Core** project designed for "vibe coding" with AI assistants. The goal is **consistent, maintainable code** without rigid enforcement that kills flow.
+
+### Architecture Rules
+
+1. **Core (`genesis_core/`) is STABLE** (not frozen)
+   - Changes rarely, only for fundamental capabilities
+   - **ASK the user before modifying core modules**
+   - If unsure, create an extension instead
+
+2. **New features go in `examples/` or user projects**
+   - Copy templates from `.genesis/templates/` when available
+   - Follow existing patterns (see examples)
+   - Build on top of core, don't modify it
+
+3. **Before ANY change, check consistency:**
+   ```bash
+   pytest tests/test_consistency.py
+   ```
+
+### Code Conventions
+
+Every module should follow these patterns:
+
+```python
+"""
+Module docstring explaining purpose.
+
+Examples:
+    >>> # Show how to use the module
+    >>> result = my_function(input)
+"""
+
+from typing import Dict, Any
+
+def my_function(input: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Clear docstring with:
+    - What it does
+    - Args description
+    - Returns description
+    - Example usage
+
+    Args:
+        input: Description of input
+
+    Returns:
+        Description of output
+
+    Example:
+        >>> my_function({"key": "value"})
+        {"result": "processed"}
+    """
+    # Implementation
+    return result
+```
+
+### What Tests Check
+
+`test_consistency.py` enforces:
+- ✅ All public functions have docstrings
+- ✅ No external dependencies in core (stdlib only)
+- ✅ Core modules follow established patterns
+- ✅ No unauthorized modules in core/
+
+**Tests check PATTERNS, not hashes.** You can modify core if needed, but tests will ensure you follow conventions.
+
+### Development Workflow
+
+1. **Starting work:** Read this README + existing code examples
+2. **Adding features:** Check `.genesis/templates/` for templates to copy
+3. **Before commit:** Run `pytest tests/test_consistency.py`
+4. **When unsure:** Ask the user, don't guess
+
+### Key Principle
+
+**Convention over Enforcement.** We guide consistency through clear patterns and tests, not through rigid freezing. The goal is to maintain the user's flow while ensuring code quality.
 
 ---
 

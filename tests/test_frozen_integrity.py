@@ -1,5 +1,14 @@
 """
 Test frozen core integrity - ensure modules haven't been modified.
+
+⚠️ DEPRECATION NOTICE:
+This test uses hash-based verification which is part of the old "Frozen Core" paradigm.
+Genesis Core has migrated to "Conventional Core" which uses pattern-based checks.
+
+See: tests/test_consistency.py for the new approach
+See: .genesis/MIGRATION_TO_CONVENTIONAL.md for details
+
+This test is kept for backward compatibility but may be removed in future versions.
 """
 
 import hashlib

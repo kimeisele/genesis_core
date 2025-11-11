@@ -1,0 +1,54 @@
+# Pre-commit hooks for Genesis Core
+# Install: pip install pre-commit && pre-commit install
+#
+# These hooks enforce conventions automatically before each commit.
+
+repos:
+  - repo: local
+    hooks:
+      # Run consistency tests before commit
+      - id: consistency-check
+        name: Check Genesis Core Consistency
+        entry: pytest tests/test_consistency.py -v
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      # Warn if core modules are being modified
+      - id: core-modification-warning
+        name: Warn about core modifications
+        entry: bash -c 'if git diff --cached --name-only | grep -q "^genesis_core/.*\.py$"; then echo "⚠️  WARNING: You are modifying core modules. Make sure this is intentional!"; fi; exit 0'
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      # Check for forbidden imports in staged files
+      - id: check-imports
+        name: Check for external dependencies in core
+        entry: bash -c 'for file in $(git diff --cached --name-only | grep "^genesis_core/.*\.py$"); do if [ -f "$file" ]; then if grep -qE "^(import|from) (requests|pandas|numpy|boto3)" "$file"; then echo "❌ ERROR: External dependency found in $file"; exit 1; fi; fi; done; exit 0'
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+  # Optional: Code formatting with black (if installed)
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        name: Format code with black
+        args: [--line-length=100]
+        files: ^(genesis_core|tests|examples)/.*\.py$
+
+  # Optional: Trailing whitespace removal
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+
+# Note: Pre-commit hooks are HELPERS, not BLOCKERS
+# If a hook fails but you need to commit anyway:
+#   git commit --no-verify
