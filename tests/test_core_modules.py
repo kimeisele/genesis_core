@@ -1,42 +1,96 @@
 """
-Basic tests for Genesis Core modules.
-Tests the frozen core functionality without external dependencies.
+Comprehensive tests for Genesis Core modules.
+
+Tests the ACTUAL API of all core modules, ensuring they work correctly.
 """
 
 import pytest
+import tempfile
+from pathlib import Path
 from genesis_core import io, storage, schema, entity, transform, process, validation, identity
 
 
 class TestIO:
-    """Test genesis_core.io module"""
+    """Test genesis_core.io module - File I/O operations"""
 
-    def test_read_basic(self):
-        """Test basic read functionality"""
-        data = {"test": "data"}
-        result = io.read(data)
-        assert result == data
+    def test_read_write_text(self):
+        """Test text file read/write cycle"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = Path(tmpdir) / "test.txt"
+            content = "Hello, World!"
 
-    def test_write_basic(self):
-        """Test basic write functionality"""
-        data = {"test": "data"}
-        result = io.write(data)
-        assert result == data
+            io.write_text(file_path, content)
+            result = io.read_text(file_path)
+
+            assert result == content
+
+    def test_read_write_json(self):
+        """Test JSON file read/write cycle"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = Path(tmpdir) / "test.json"
+            data = {"key": "value", "number": 42}
+
+            io.write_json(file_path, data)
+            result = io.read_json(file_path)
+
+            assert result == data
+
+    def test_exists(self):
+        """Test path existence check"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            existing = Path(tmpdir) / "exists.txt"
+            non_existing = Path(tmpdir) / "nope.txt"
+
+            io.write_text(existing, "content")
+
+            assert io.exists(existing) is True
+            assert io.exists(non_existing) is False
+
+    def test_list_files(self):
+        """Test file listing"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            (tmpdir_path / "file1.txt").write_text("content1")
+            (tmpdir_path / "file2.txt").write_text("content2")
+            (tmpdir_path / "file3.log").write_text("content3")
+
+            all_files = io.list_files(tmpdir_path)
+            txt_files = io.list_files(tmpdir_path, "*.txt")
+
+            assert len(all_files) == 3
+            assert len(txt_files) == 2
 
 
 class TestStorage:
-    """Test genesis_core.storage module"""
+    """Test genesis_core.storage module - Key-value storage"""
 
     def test_store_and_retrieve(self):
         """Test store and retrieve cycle"""
-        key = "test_key"
-        data = {"test": "data"}
+        key = "test_key_123"
+        data = {"test": "data", "value": 42}
 
         storage.store(key, data)
         result = storage.retrieve(key)
 
         assert result == data
 
-    def test_list_stored_keys(self):
+    def test_exists(self):
+        """Test key existence check"""
+        storage.store("exists_key", {"data": "value"})
+
+        assert storage.exists("exists_key") is True
+        assert storage.exists("nonexistent_key") is False
+
+    def test_delete(self):
+        """Test deletion"""
+        key = "delete_me"
+        storage.store(key, {"data": "value"})
+
+        assert storage.exists(key) is True
+        storage.delete(key)
+        assert storage.exists(key) is False
+
+    def test_list_keys(self):
         """Test listing stored keys"""
         storage.store("key1", {"data": 1})
         storage.store("key2", {"data": 2})
@@ -45,225 +99,375 @@ class TestStorage:
         assert "key1" in keys
         assert "key2" in keys
 
+    def test_list_keys_with_prefix(self):
+        """Test listing keys with prefix filter"""
+        storage.store("test_prefix:1", {"data": 1})
+        storage.store("test_prefix:2", {"data": 2})
+        
+        keys = storage.list_keys("test_prefix:")
+        assert len([k for k in keys if k.startswith("test_prefix:")]) >= 2
+
 
 class TestSchema:
-    """Test genesis_core.schema module"""
+    """Test genesis_core.schema module - Schema definitions"""
 
-    def test_define_schema(self):
-        """Test schema definition"""
-        test_schema = {
-            "name": "TestEntity",
-            "fields": {
-                "id": {"type": "string", "required": True},
-                "name": {"type": "string", "required": True},
-            }
-        }
+    def test_define_and_get_schema(self):
+        """Test schema definition and retrieval"""
+        schema_def = schema.define_schema("TestEntity", {
+            "name": str,
+            "age": int,
+            "email": str
+        })
 
-        schema.define_schema("TestEntity", test_schema)
         retrieved = schema.get_schema("TestEntity")
 
-        assert retrieved is not None
-        assert retrieved["name"] == "TestEntity"
+        assert retrieved.name == "TestEntity"
+        assert "name" in retrieved.fields
+
+    def test_validate_data_success(self):
+        """Test successful data validation"""
+        schema.define_schema("ValidTest", {
+            "field1": str,
+            "field2": int
+        })
+
+        result = schema.validate_data("ValidTest", {
+            "field1": "value",
+            "field2": 42
+        })
+
+        assert result.is_valid is True
+        assert len(result.errors) == 0
+
+    def test_validate_data_failure(self):
+        """Test failed data validation"""
+        schema.define_schema("InvalidTest", {
+            "required_field": str
+        })
+
+        result = schema.validate_data("InvalidTest", {
+            "wrong_field": "value"
+        })
+
+        assert result.is_valid is False
+        assert len(result.errors) > 0
 
     def test_list_schemas(self):
         """Test listing all schemas"""
-        schema.define_schema("Schema1", {"name": "Schema1", "fields": {}})
-        schema.define_schema("Schema2", {"name": "Schema2", "fields": {}})
+        schema.define_schema("Schema1", {"field": str})
+        schema.define_schema("Schema2", {"field": int})
 
         schemas = schema.list_schemas()
+
         assert "Schema1" in schemas
         assert "Schema2" in schemas
 
 
 class TestEntity:
-    """Test genesis_core.entity module"""
+    """Test genesis_core.entity module - Entity CRUD"""
 
     def test_create_entity(self):
         """Test entity creation"""
-        entity_data = {
-            "id": "test-123",
-            "name": "Test Entity",
-            "type": "TestType"
-        }
+        # Define schema first
+        schema.define_schema("Person", {
+            "name": str,
+            "age": int
+        })
 
-        result = entity.create_entity("TestType", entity_data)
+        entity_obj = entity.create_entity("Person", {
+            "name": "Alice",
+            "age": 30
+        })
 
-        assert result["id"] == "test-123"
-        assert result["name"] == "Test Entity"
-        assert result["type"] == "TestType"
+        assert entity_obj.schema_name == "Person"
+        assert entity_obj.data["name"] == "Alice"
+        assert entity_obj.data["age"] == 30
+        assert entity_obj.id is not None
 
     def test_get_entity(self):
         """Test entity retrieval"""
-        entity_id = "test-456"
-        entity_data = {"id": entity_id, "name": "Test"}
+        schema.define_schema("Product", {
+            "name": str,
+            "price": int
+        })
 
-        entity.create_entity("TestType", entity_data)
-        retrieved = entity.get_entity(entity_id)
+        created = entity.create_entity("Product", {
+            "name": "Widget",
+            "price": 999
+        })
 
-        assert retrieved is not None
-        assert retrieved["id"] == entity_id
+        retrieved = entity.get_entity(created.id)
+
+        assert retrieved.id == created.id
+        assert retrieved.data == created.data
+
+    def test_update_entity(self):
+        """Test entity update"""
+        schema.define_schema("UpdateTest", {
+            "value": int
+        })
+
+        created = entity.create_entity("UpdateTest", {"value": 10})
+        updated = entity.update_entity(created.id, {"value": 20})
+
+        assert updated.data["value"] == 20
+
+    def test_delete_entity(self):
+        """Test entity deletion"""
+        schema.define_schema("DeleteTest", {
+            "field": str
+        })
+
+        created = entity.create_entity("DeleteTest", {"field": "value"})
+        entity.delete_entity(created.id)
+
+        with pytest.raises(KeyError):
+            entity.get_entity(created.id)
+
+    def test_list_entities(self):
+        """Test listing entities by schema"""
+        schema.define_schema("ListTest", {
+            "name": str
+        })
+
+        entity.create_entity("ListTest", {"name": "Entity1"})
+        entity.create_entity("ListTest", {"name": "Entity2"})
+
+        entities = entity.list_entities("ListTest")
+
+        assert len(entities) >= 2
 
 
 class TestTransform:
-    """Test genesis_core.transform module"""
+    """Test genesis_core.transform module - Data transformation"""
 
-    def test_transform_data(self):
-        """Test basic data transformation"""
-        source = {"name": "test", "value": 42}
-        rules = {"name": "title"}
+    def test_define_and_apply_transform(self):
+        """Test transformation definition and application"""
+        schema.define_schema("Source", {"value": int})
+        schema.define_schema("Target", {"doubled": int})
 
-        result = transform.transform(source, rules)
-        assert "title" in result or "name" in result
+        # Define transformation
+        transform.define_transform(
+            "double_value",
+            "Source",
+            "Target",
+            lambda e: {"doubled": e.data["value"] * 2}
+        )
 
-    def test_map_fields(self):
-        """Test field mapping"""
-        data = {"old_field": "value"}
-        mapping = {"old_field": "new_field"}
+        # Create source entity
+        source = entity.create_entity("Source", {"value": 10})
 
-        result = transform.map_fields(data, mapping)
-        assert "new_field" in result or "old_field" in result
+        # Apply transformation
+        result = transform.apply_transform(source, "double_value")
+
+        assert result.data["doubled"] == 20
+
+    def test_list_transforms(self):
+        """Test listing all transforms"""
+        transforms = transform.list_transforms()
+        assert isinstance(transforms, list)
 
 
 class TestProcess:
-    """Test genesis_core.process module"""
+    """Test genesis_core.process module - Workflow/process management"""
 
-    def test_execute_process(self):
-        """Test process execution"""
-        process_def = {
-            "name": "test_process",
-            "steps": [
-                {"action": "validate"},
-                {"action": "transform"},
-            ]
-        }
+    def test_define_and_execute_process(self):
+        """Test process definition and execution"""
+        schema.define_schema("ProcessTest", {"value": int})
 
-        result = process.execute(process_def, {"test": "data"})
-        assert result is not None
+        # Define step handlers
+        def step1(e):
+            e.data["value"] += 10
+            return e
 
-    def test_create_pipeline(self):
-        """Test pipeline creation"""
-        steps = [
-            lambda x: x,
-            lambda x: x,
-        ]
+        def step2(e):
+            e.data["value"] *= 2
+            return e
 
-        pipeline = process.create_pipeline(steps)
-        assert callable(pipeline)
+        # Register handlers
+        process.register_step_handler("add_ten", step1)
+        process.register_step_handler("double", step2)
+
+        # Define process
+        process.define_process("math_process", ["add_ten", "double"])
+
+        # Create entity and execute
+        test_entity = entity.create_entity("ProcessTest", {"value": 5})
+        result = process.execute_process("math_process", test_entity)
+
+        # (5 + 10) * 2 = 30
+        assert result.data["value"] == 30
+
+    def test_list_processes(self):
+        """Test listing all processes"""
+        processes = process.list_processes()
+        assert isinstance(processes, list)
 
 
 class TestValidation:
-    """Test genesis_core.validation module"""
+    """Test genesis_core.validation module - Validation rules"""
 
-    def test_validate_required_fields(self):
-        """Test required field validation"""
-        data = {"name": "test", "value": 42}
-        required = ["name", "value"]
+    def test_define_and_validate_rule(self):
+        """Test rule definition and validation"""
+        schema.define_schema("ValidationTest", {"age": int})
 
-        result = validation.validate_required(data, required)
-        assert result is True
+        # Define rule
+        validation.define_rule(
+            "is_adult",
+            lambda e: e.data.get("age", 0) >= 18,
+            
+        )
 
-    def test_validate_missing_field(self):
-        """Test missing field detection"""
-        data = {"name": "test"}
-        required = ["name", "value"]
+        # Test with valid entity
+        adult = entity.create_entity("ValidationTest", {"age": 25})
+        result_valid = validation.validate(adult, ["is_adult"])
 
-        result = validation.validate_required(data, required)
-        assert result is False
+        assert result_valid.is_valid is True
 
-    def test_validate_type(self):
-        """Test type validation"""
-        assert validation.validate_type("test", str) is True
-        assert validation.validate_type(42, int) is True
-        assert validation.validate_type("test", int) is False
+        # Test with invalid entity
+        child = entity.create_entity("ValidationTest", {"age": 10})
+        result_invalid = validation.validate(child, ["is_adult"])
+
+        assert result_invalid.is_valid is False
+        assert len(result_invalid.errors) > 0
+
+    def test_list_rules(self):
+        """Test listing all rules"""
+        rules = validation.list_rules()
+        assert isinstance(rules, list)
 
 
 class TestIdentity:
-    """Test genesis_core.identity module"""
+    """Test genesis_core.identity module - Auth/permissions"""
 
-    def test_generate_id(self):
-        """Test ID generation"""
-        id1 = identity.generate_id()
-        id2 = identity.generate_id()
+    def test_create_and_get_subject(self):
+        """Test subject creation and retrieval"""
+        subject = identity.create_subject("user123", {
+            "name": "Alice",
+            "email": "alice@example.com"
+        })
 
-        assert id1 != id2
-        assert len(id1) > 0
-        assert len(id2) > 0
+        retrieved = identity.get_subject("user123")
 
-    def test_generate_id_with_prefix(self):
-        """Test ID generation with prefix"""
-        prefix = "TEST"
-        generated_id = identity.generate_id(prefix)
+        assert retrieved.id == "user123"
+        assert retrieved.attributes["name"] == "Alice"
 
-        assert generated_id.startswith(prefix)
+    def test_grant_and_check_permission(self):
+        """Test permission granting and checking"""
+        identity.create_subject("admin", {"name": "Admin"})
 
-    def test_validate_id(self):
-        """Test ID validation"""
-        valid_id = identity.generate_id()
-        assert identity.validate_id(valid_id) is True
+        # Grant permissions
+        identity.grant_permission("admin", "read", "doc:*")
+        identity.grant_permission("admin", "write", "doc:*")
 
-        assert identity.validate_id("") is False
-        assert identity.validate_id(None) is False
+        # Check permissions
+        assert identity.check_permission("admin", "read", "doc:123") is True
+        assert identity.check_permission("admin", "write", "doc:456") is True
+        assert identity.check_permission("admin", "delete", "doc:789") is False
+
+    def test_list_permissions(self):
+        """Test listing subject permissions"""
+        identity.create_subject("test_user", {"name": "Test"})
+        identity.grant_permission("test_user", "read", "file:*")
+
+        permissions = identity.list_permissions("test_user")
+
+        assert len(permissions) >= 1
+        assert permissions[0].action == "read"
 
 
 class TestIntegration:
     """Integration tests combining multiple modules"""
 
     def test_full_entity_workflow(self):
-        """Test complete entity lifecycle"""
+        """Test complete workflow: schema, entity, validation, transform"""
+        # Define schemas
+        schema.define_schema("Order", {
+            "product_id": str,
+            "quantity": int,
+            "price": int
+        })
+        schema.define_schema("OrderSummary", {
+            "total": int
+        })
+
+        # Define validation rule
+        validation.define_rule(
+            "positive_quantity",
+            lambda e: e.data.get("quantity", 0) > 0,
+            
+        )
+
+        # Define transform
+        transform.define_transform(
+            "calculate_total",
+            "Order",
+            "OrderSummary",
+            lambda e: {"total": e.data["quantity"] * e.data["price"]}
+        )
+
+        # Create and validate order
+        order = entity.create_entity("Order", {
+            "product_id": "PROD123",
+            "quantity": 3,
+            "price": 100
+        })
+
+        validation_result = validation.validate(order, ["positive_quantity"])
+        assert validation_result.is_valid is True
+
+        # Transform to summary
+        summary = transform.apply_transform(order, "calculate_total")
+        assert summary.data["total"] == 300
+
+    def test_process_with_validation(self):
+        """Test process that includes validation steps"""
         # Define schema
-        entity_schema = {
-            "name": "Product",
-            "fields": {
-                "id": {"type": "string", "required": True},
-                "name": {"type": "string", "required": True},
-                "price": {"type": "number", "required": True},
-            }
-        }
-        schema.define_schema("Product", entity_schema)
+        schema.define_schema("Application", {
+            "status": str,
+            "score": int
+        })
 
-        # Create entity
-        product_id = identity.generate_id("PROD")
-        product_data = {
-            "id": product_id,
-            "name": "Test Product",
-            "price": 99.99
-        }
-
-        # Validate
-        is_valid = validation.validate_required(
-            product_data,
-            ["id", "name", "price"]
+        # Define validation
+        validation.define_rule(
+            "passing_score",
+            lambda e: e.data.get("score", 0) >= 70,
+            
         )
-        assert is_valid is True
 
-        # Create and store
-        product = entity.create_entity("Product", product_data)
-        storage.store(product_id, product)
+        # Define process steps
+        def validate_step(e):
+            result = validation.validate(e, ["passing_score"])
+            if not result.is_valid:
+                raise ValueError(f"Validation failed: {result.errors}")
+            return e
 
-        # Retrieve
-        retrieved = storage.retrieve(product_id)
-        assert retrieved["name"] == "Test Product"
+        def approve_step(e):
+            e.data["status"] = "approved"
+            return e
 
-    def test_transform_and_validate(self):
-        """Test transformation with validation"""
-        source_data = {
-            "productName": "Widget",
-            "productPrice": 49.99,
-        }
+        # Register and define process
+        process.register_step_handler("validate_app", validate_step)
+        process.register_step_handler("approve_app", approve_step)
+        process.define_process("approval_process", ["validate_app", "approve_app"])
 
-        # Transform
-        mapping = {
-            "productName": "name",
-            "productPrice": "price",
-        }
-        transformed = transform.map_fields(source_data, mapping)
+        # Test with passing application
+        passing_app = entity.create_entity("Application", {
+            "status": "pending",
+            "score": 85
+        })
 
-        # Validate transformed data
-        has_fields = (
-            ("name" in transformed or "productName" in transformed) and
-            ("price" in transformed or "productPrice" in transformed)
-        )
-        assert has_fields is True
+        result = process.execute_process("approval_process", passing_app)
+        assert result.data["status"] == "approved"
+
+        # Test with failing application
+        failing_app = entity.create_entity("Application", {
+            "status": "pending",
+            "score": 50
+        })
+
+        with pytest.raises(ValueError):
+            process.execute_process("approval_process", failing_app)
 
 
 if __name__ == "__main__":

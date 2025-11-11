@@ -97,11 +97,11 @@ Modern codebases break constantly because AI agents and developers lack system u
 
 **We needed a different approach.**
 
-## The Solution: Frozen Core
+## The Solution: Conventional Core
 
 Genesis Core is a set of **8 fundamental, immutable modules** that serve as eternal building blocks for any application. These modules are:
 
-- **Frozen** - Never modified after initial release
+- **Stable** - Changes rarely, only for fundamental needs
 - **Neutral** - No domain-specific logic
 - **Minimal** - Simplest possible implementation
 - **Complete** - Sufficient to build any application through extensions
@@ -494,7 +494,7 @@ Add to your CI/CD:
 
 ```yaml
 # .github/workflows/verify-frozen.yml
-name: Verify Frozen Core
+name: Verify Core Consistency
 
 on: [push, pull_request]
 
