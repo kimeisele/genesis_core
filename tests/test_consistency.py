@@ -28,8 +28,17 @@ EXPECTED_CORE_MODULES = {
 
 # External dependencies forbidden in core (keep it zero-dependency)
 FORBIDDEN_IMPORTS = {
-    "requests", "numpy", "pandas", "boto3", "redis", "sqlalchemy",
-    "django", "flask", "fastapi", "pydantic", "aiohttp"
+    "requests",
+    "numpy",
+    "pandas",
+    "boto3",
+    "redis",
+    "sqlalchemy",
+    "django",
+    "flask",
+    "fastapi",
+    "pydantic",
+    "aiohttp",
 }
 
 
@@ -43,10 +52,7 @@ class TestCoreStructure:
 
     def test_all_expected_modules_exist(self, core_path):
         """Verify all expected core modules are present."""
-        actual_files = {
-            f.name for f in core_path.iterdir()
-            if f.is_file() and f.suffix == ".py"
-        }
+        actual_files = {f.name for f in core_path.iterdir() if f.is_file() and f.suffix == ".py"}
 
         missing = EXPECTED_CORE_MODULES - actual_files
         assert len(missing) == 0, (
@@ -57,7 +63,8 @@ class TestCoreStructure:
     def test_no_unauthorized_modules(self, core_path):
         """Ensure no extra modules were added without approval."""
         actual_files = {
-            f.name for f in core_path.iterdir()
+            f.name
+            for f in core_path.iterdir()
             if f.is_file() and f.suffix == ".py" and f.name != "py.typed"
         }
 
@@ -207,14 +214,12 @@ class TestPatternCompliance:
         """Ensure template files exist in .genesis/templates/."""
         templates_path = Path(__file__).parent.parent / ".genesis" / "templates"
 
-        assert templates_path.exists(), (
-            ".genesis/templates/ directory should exist"
-        )
+        assert templates_path.exists(), ".genesis/templates/ directory should exist"
 
         expected_templates = {
             "workflow.py.template",
             "extension.py.template",
-            "schema_setup.py.template"
+            "schema_setup.py.template",
         }
 
         actual_templates = {f.name for f in templates_path.iterdir() if f.is_file()}
@@ -252,9 +257,9 @@ class TestProjectStructure:
         readme_path = Path(__file__).parent.parent / "README.md"
         content = readme_path.read_text()
 
-        assert "FOR AI ASSISTANTS" in content or "FOR AI:" in content, (
-            "README should have a section for AI assistants at the top"
-        )
+        assert (
+            "FOR AI ASSISTANTS" in content or "FOR AI:" in content
+        ), "README should have a section for AI assistants at the top"
 
 
 # Summary function for manual runs

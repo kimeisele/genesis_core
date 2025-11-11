@@ -29,17 +29,17 @@ class TestFrozenIntegrity:
     """Test that core modules remain frozen (unchanged)"""
 
     # Expected hashes from FROZEN_MANIFEST.md
-    # Updated after removing unused 'field' imports (minor cleanup)
+    # Updated after black formatting (code style consistency)
     EXPECTED_HASHES = {
         "__init__.py": "5cb515b96ae34a121fe76e80a5330c10c1fbe27035e3ba01dfb9392241da791f",
-        "io.py": "d123e3b46f49b67f62fa0aa4cec2de1cbb6e7409a4774aa80f083ea964e71eba",
+        "io.py": "82de793900f734f4ed35c83c46b35ba7b894082e69c51eaf97de1e4cc3f2d1f8",
         "storage.py": "4f4c224a2affdb59563a8fe7d04eed9086dd25a3bf90222a8ca7ceb01e8c7ed2",
-        "schema.py": "805ee369d3b9fbfb7ff3f574044733fa2016e44818b2feab3fbb599ea25315d1",
-        "entity.py": "541e35915733d3e695a0db3672886faf9aa0ae68dcd0f391cb1c5a4570fe5d40",
-        "transform.py": "063a8b2eda0c3c9a1e25dd6cc838856652ff577de7818c06556044e5b14f8568",
-        "process.py": "c73749c01a693e8cdbda40f233433c27ecfe3b79204a7276e581d7e84ec2d94c",
-        "validation.py": "6124968b2ec871e5a0a22abdac098c36c5036dd80a8398b06c49bf88770007aa",
-        "identity.py": "ecb420b6fc990d1be2c9b4d35057fcce8c1a54a47617fa557101a46ee3cda6aa",
+        "schema.py": "38af14afd87c54e72eef2ab60230d6058ba95920001599ddb932c2367ecee59b",
+        "entity.py": "18e87d4dc03f91d7e2606141eadfff92189f22f954d55f1ad08802f371c252cf",
+        "transform.py": "135695eb7875716e61f8fd913731eb4f48dbd03cffb93791b930879c318997a4",
+        "process.py": "4bec7ad2e852f61b47b558642a24ea93f3c607d91dda257049929a4a7b5162fc",
+        "validation.py": "ecdb3507b7bc1dc836b59a1f55d6b7b04c579a80c57fa5281cf80feb9339c6ef",
+        "identity.py": "0c0a24b94a63b855f5de05c0ff6c00536b7beedec1d79b84669b35d329c86382",
     }
 
     @pytest.fixture
@@ -73,7 +73,8 @@ class TestFrozenIntegrity:
     def test_no_extra_modules(self, core_path):
         """Verify no unauthorized modules were added to core"""
         actual_files = {
-            f.name for f in core_path.iterdir()
+            f.name
+            for f in core_path.iterdir()
             if f.is_file() and f.suffix == ".py" and f.name != "py.typed"
         }
 

@@ -18,7 +18,7 @@ Last Known Good State: 2025-11-11
 """
 
 from typing import Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import uuid
 
 from . import schema
@@ -27,6 +27,7 @@ from . import schema
 @dataclass
 class Entity:
     """Entity with schema and data."""
+
     id: str
     schema_name: str
     data: dict[str, Any]

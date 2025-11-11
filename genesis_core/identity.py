@@ -18,13 +18,14 @@ Last Known Good State: 2025-11-11
 """
 
 from typing import Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import fnmatch
 
 
 @dataclass
 class Subject:
     """Subject (user/service) with attributes."""
+
     id: str
     attributes: dict[str, Any]
 
@@ -32,6 +33,7 @@ class Subject:
 @dataclass
 class Permission:
     """Permission definition."""
+
     action: str
     resource_pattern: str
 

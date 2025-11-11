@@ -103,7 +103,7 @@ class TestStorage:
         """Test listing keys with prefix filter"""
         storage.store("test_prefix:1", {"data": 1})
         storage.store("test_prefix:2", {"data": 2})
-        
+
         keys = storage.list_keys("test_prefix:")
         assert len([k for k in keys if k.startswith("test_prefix:")]) >= 2
 
@@ -113,11 +113,7 @@ class TestSchema:
 
     def test_define_and_get_schema(self):
         """Test schema definition and retrieval"""
-        schema_def = schema.define_schema("TestEntity", {
-            "name": str,
-            "age": int,
-            "email": str
-        })
+        schema_def = schema.define_schema("TestEntity", {"name": str, "age": int, "email": str})
 
         retrieved = schema.get_schema("TestEntity")
 
@@ -126,28 +122,18 @@ class TestSchema:
 
     def test_validate_data_success(self):
         """Test successful data validation"""
-        schema.define_schema("ValidTest", {
-            "field1": str,
-            "field2": int
-        })
+        schema.define_schema("ValidTest", {"field1": str, "field2": int})
 
-        result = schema.validate_data("ValidTest", {
-            "field1": "value",
-            "field2": 42
-        })
+        result = schema.validate_data("ValidTest", {"field1": "value", "field2": 42})
 
         assert result.is_valid is True
         assert len(result.errors) == 0
 
     def test_validate_data_failure(self):
         """Test failed data validation"""
-        schema.define_schema("InvalidTest", {
-            "required_field": str
-        })
+        schema.define_schema("InvalidTest", {"required_field": str})
 
-        result = schema.validate_data("InvalidTest", {
-            "wrong_field": "value"
-        })
+        result = schema.validate_data("InvalidTest", {"wrong_field": "value"})
 
         assert result.is_valid is False
         assert len(result.errors) > 0
@@ -169,15 +155,9 @@ class TestEntity:
     def test_create_entity(self):
         """Test entity creation"""
         # Define schema first
-        schema.define_schema("Person", {
-            "name": str,
-            "age": int
-        })
+        schema.define_schema("Person", {"name": str, "age": int})
 
-        entity_obj = entity.create_entity("Person", {
-            "name": "Alice",
-            "age": 30
-        })
+        entity_obj = entity.create_entity("Person", {"name": "Alice", "age": 30})
 
         assert entity_obj.schema_name == "Person"
         assert entity_obj.data["name"] == "Alice"
@@ -186,15 +166,9 @@ class TestEntity:
 
     def test_get_entity(self):
         """Test entity retrieval"""
-        schema.define_schema("Product", {
-            "name": str,
-            "price": int
-        })
+        schema.define_schema("Product", {"name": str, "price": int})
 
-        created = entity.create_entity("Product", {
-            "name": "Widget",
-            "price": 999
-        })
+        created = entity.create_entity("Product", {"name": "Widget", "price": 999})
 
         retrieved = entity.get_entity(created.id)
 
@@ -203,9 +177,7 @@ class TestEntity:
 
     def test_update_entity(self):
         """Test entity update"""
-        schema.define_schema("UpdateTest", {
-            "value": int
-        })
+        schema.define_schema("UpdateTest", {"value": int})
 
         created = entity.create_entity("UpdateTest", {"value": 10})
         updated = entity.update_entity(created.id, {"value": 20})
@@ -214,9 +186,7 @@ class TestEntity:
 
     def test_delete_entity(self):
         """Test entity deletion"""
-        schema.define_schema("DeleteTest", {
-            "field": str
-        })
+        schema.define_schema("DeleteTest", {"field": str})
 
         created = entity.create_entity("DeleteTest", {"field": "value"})
         entity.delete_entity(created.id)
@@ -226,9 +196,7 @@ class TestEntity:
 
     def test_list_entities(self):
         """Test listing entities by schema"""
-        schema.define_schema("ListTest", {
-            "name": str
-        })
+        schema.define_schema("ListTest", {"name": str})
 
         entity.create_entity("ListTest", {"name": "Entity1"})
         entity.create_entity("ListTest", {"name": "Entity2"})
@@ -248,10 +216,7 @@ class TestTransform:
 
         # Define transformation
         transform.define_transform(
-            "double_value",
-            "Source",
-            "Target",
-            lambda e: {"doubled": e.data["value"] * 2}
+            "double_value", "Source", "Target", lambda e: {"doubled": e.data["value"] * 2}
         )
 
         # Create source entity
@@ -315,7 +280,6 @@ class TestValidation:
         validation.define_rule(
             "is_adult",
             lambda e: e.data.get("age", 0) >= 18,
-            
         )
 
         # Test with valid entity
@@ -342,10 +306,9 @@ class TestIdentity:
 
     def test_create_and_get_subject(self):
         """Test subject creation and retrieval"""
-        subject = identity.create_subject("user123", {
-            "name": "Alice",
-            "email": "alice@example.com"
-        })
+        subject = identity.create_subject(
+            "user123", {"name": "Alice", "email": "alice@example.com"}
+        )
 
         retrieved = identity.get_subject("user123")
 
@@ -382,20 +345,13 @@ class TestIntegration:
     def test_full_entity_workflow(self):
         """Test complete workflow: schema, entity, validation, transform"""
         # Define schemas
-        schema.define_schema("Order", {
-            "product_id": str,
-            "quantity": int,
-            "price": int
-        })
-        schema.define_schema("OrderSummary", {
-            "total": int
-        })
+        schema.define_schema("Order", {"product_id": str, "quantity": int, "price": int})
+        schema.define_schema("OrderSummary", {"total": int})
 
         # Define validation rule
         validation.define_rule(
             "positive_quantity",
             lambda e: e.data.get("quantity", 0) > 0,
-            
         )
 
         # Define transform
@@ -403,15 +359,13 @@ class TestIntegration:
             "calculate_total",
             "Order",
             "OrderSummary",
-            lambda e: {"total": e.data["quantity"] * e.data["price"]}
+            lambda e: {"total": e.data["quantity"] * e.data["price"]},
         )
 
         # Create and validate order
-        order = entity.create_entity("Order", {
-            "product_id": "PROD123",
-            "quantity": 3,
-            "price": 100
-        })
+        order = entity.create_entity(
+            "Order", {"product_id": "PROD123", "quantity": 3, "price": 100}
+        )
 
         validation_result = validation.validate(order, ["positive_quantity"])
         assert validation_result.is_valid is True
@@ -423,16 +377,12 @@ class TestIntegration:
     def test_process_with_validation(self):
         """Test process that includes validation steps"""
         # Define schema
-        schema.define_schema("Application", {
-            "status": str,
-            "score": int
-        })
+        schema.define_schema("Application", {"status": str, "score": int})
 
         # Define validation
         validation.define_rule(
             "passing_score",
             lambda e: e.data.get("score", 0) >= 70,
-            
         )
 
         # Define process steps
@@ -452,19 +402,13 @@ class TestIntegration:
         process.define_process("approval_process", ["validate_app", "approve_app"])
 
         # Test with passing application
-        passing_app = entity.create_entity("Application", {
-            "status": "pending",
-            "score": 85
-        })
+        passing_app = entity.create_entity("Application", {"status": "pending", "score": 85})
 
         result = process.execute_process("approval_process", passing_app)
         assert result.data["status"] == "approved"
 
         # Test with failing application
-        failing_app = entity.create_entity("Application", {
-            "status": "pending",
-            "score": 50
-        })
+        failing_app = entity.create_entity("Application", {"status": "pending", "score": 50})
 
         with pytest.raises(ValueError):
             process.execute_process("approval_process", failing_app)
