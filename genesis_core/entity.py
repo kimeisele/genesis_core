@@ -18,7 +18,7 @@ Last Known Good State: 2025-11-11
 """
 
 from typing import Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import uuid
 
 from . import schema

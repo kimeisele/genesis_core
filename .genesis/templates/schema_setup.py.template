@@ -1,0 +1,104 @@
+"""
+Schema setup template for Genesis Core.
+
+Use this template to define all schemas for your domain.
+
+Example:
+    cp .genesis/templates/schema_setup.py.template my_project/schemas.py
+"""
+
+from genesis_core import schema, validation
+
+
+def setup_schemas():
+    """
+    Define all schemas for this domain.
+
+    Call this function at application startup to register all schemas.
+
+    Example:
+        >>> setup_schemas()
+        >>> # Now schemas are available for entity creation
+    """
+
+    # Example: User schema
+    schema.define_schema("User", {
+        "name": str,
+        "email": str,
+        "age": int,
+        "role": str
+    })
+
+    # Example: Product schema
+    schema.define_schema("Product", {
+        "id": str,
+        "name": str,
+        "price": float,
+        "in_stock": int
+    })
+
+    # TODO: Add your domain schemas here
+    # schema.define_schema("YourEntityType", {
+    #     "field1": str,
+    #     "field2": int,
+    #     "field3": bool,
+    # })
+
+
+def setup_validation_rules():
+    """
+    Define all validation rules for this domain.
+
+    Call this function at application startup to register validation rules.
+
+    Example:
+        >>> setup_validation_rules()
+        >>> # Now rules can be used with validation.validate()
+    """
+
+    # Example: Age validation
+    validation.define_rule(
+        "adult",
+        lambda entity: entity.data.get("age", 0) >= 18,
+        error_message="User must be 18 or older"
+    )
+
+    # Example: Email validation
+    validation.define_rule(
+        "valid_email",
+        lambda entity: "@" in entity.data.get("email", ""),
+        error_message="Invalid email format"
+    )
+
+    # Example: Stock validation
+    validation.define_rule(
+        "in_stock",
+        lambda entity: entity.data.get("in_stock", 0) > 0,
+        error_message="Product is out of stock"
+    )
+
+    # TODO: Add your domain validation rules
+    # validation.define_rule(
+    #     "rule_name",
+    #     lambda entity: # your validation logic,
+    #     error_message="Error message if rule fails"
+    # )
+
+
+def initialize_domain():
+    """
+    Initialize the complete domain - schemas and rules.
+
+    Call this once at application startup.
+
+    Example:
+        >>> from my_project import schemas
+        >>> schemas.initialize_domain()
+    """
+    setup_schemas()
+    setup_validation_rules()
+
+
+# TODO: Define your domain-specific schemas
+# TODO: Add validation rules for your business logic
+# TODO: Call initialize_domain() in your main.py or app startup

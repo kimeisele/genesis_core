@@ -49,10 +49,6 @@ packages = ["genesis_core"]
 [tool.setuptools.package-data]
 genesis_core = ["py.typed"]
 
-# Exclude examples, tests, scripts from build
-[tool.setuptools.packages.find]
-exclude = ["examples*", "tests*", "scripts*"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

@@ -1,0 +1,128 @@
+"""
+Extension template for Genesis Core.
+
+Use this template to create extensions that wrap core functionality
+with domain-specific or enhanced capabilities.
+
+Example:
+    cp .genesis/templates/extension.py.template my_project/storage_database.py
+"""
+
+from typing import Dict, Any, Optional
+from genesis_core import storage as core_storage
+
+
+def extended_store(key: str, data: Dict[str, Any], **options) -> None:
+    """
+    Extended store function with additional capabilities.
+
+    This wraps core storage and adds your custom functionality on top.
+
+    Args:
+        key: Storage key
+        data: Data to store
+        **options: Additional options for your extension
+
+    Example:
+        >>> extended_store("user:123", {"name": "Alice"}, persist=True)
+    """
+    # Use core functionality
+    core_storage.store(key, data)
+
+    # TODO: Add your extension logic here
+    # Examples:
+    # - Persist to database
+    # - Send to cache
+    # - Log the operation
+    # - Validate data
+    # - Encrypt data
+    # - etc.
+
+    pass
+
+
+def extended_retrieve(key: str, **options) -> Optional[Dict[str, Any]]:
+    """
+    Extended retrieve function with additional capabilities.
+
+    Args:
+        key: Storage key
+        **options: Additional options for your extension
+
+    Returns:
+        Retrieved data or None if not found
+
+    Example:
+        >>> data = extended_retrieve("user:123", with_metadata=True)
+    """
+    try:
+        # Try core retrieval first
+        data = core_storage.retrieve(key)
+
+        # TODO: Add your extension logic here
+        # Examples:
+        # - Check cache first
+        # - Add metadata
+        # - Decrypt data
+        # - Log access
+        # - etc.
+
+        return data
+
+    except KeyError:
+        # TODO: Add fallback logic
+        # Examples:
+        # - Try loading from database
+        # - Return default value
+        # - etc.
+
+        return None
+
+
+def extended_exists(key: str) -> bool:
+    """
+    Check if key exists with extended logic.
+
+    Args:
+        key: Storage key
+
+    Returns:
+        True if exists, False otherwise
+    """
+    # Check core storage
+    exists = core_storage.exists(key)
+
+    # TODO: Add your extension logic
+    # Examples:
+    # - Also check database
+    # - Check cache
+    # - etc.
+
+    return exists
+
+
+def extended_delete(key: str) -> None:
+    """
+    Delete with extended logic.
+
+    Args:
+        key: Storage key
+    """
+    # Delete from core
+    core_storage.delete(key)
+
+    # TODO: Add your extension logic
+    # Examples:
+    # - Also delete from database
+    # - Clear cache
+    # - Log deletion
+    # - etc.
+
+    pass
+
+
+# TODO: Rename functions to match your domain
+# TODO: Add your domain-specific parameters
+# TODO: Implement the extension logic (database, cache, etc.)
+# TODO: Add proper error handling
+# TODO: Write tests for your extension

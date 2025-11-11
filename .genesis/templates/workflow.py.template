@@ -1,0 +1,122 @@
+"""
+Workflow template for Genesis Core.
+
+Copy this template and adapt it for your specific workflow.
+
+Example:
+    cp .genesis/templates/workflow.py.template my_project/workflows/hiring.py
+"""
+
+from typing import Dict, Any
+from genesis_core import process, validation, entity
+
+
+def step_validate(input_entity: Any) -> Any:
+    """
+    Validate step - check if entity meets requirements.
+
+    Args:
+        input_entity: The entity to validate
+
+    Returns:
+        The validated entity
+
+    Raises:
+        ValueError: If validation fails
+    """
+    # TODO: Implement validation logic
+    # Example:
+    # result = validation.validate(input_entity, ["required_rule", "format_rule"])
+    # if not result.is_valid:
+    #     raise ValueError(f"Validation failed: {result.errors}")
+
+    return input_entity
+
+
+def step_process(input_entity: Any) -> Any:
+    """
+    Process step - perform the main workflow action.
+
+    Args:
+        input_entity: The entity to process
+
+    Returns:
+        The processed entity
+    """
+    # TODO: Implement processing logic
+    # Example:
+    # updated_entity = entity.update_entity(
+    #     input_entity.id,
+    #     {"status": "processed", "processed_at": datetime.now()}
+    # )
+
+    return input_entity
+
+
+def step_finalize(input_entity: Any) -> Any:
+    """
+    Finalize step - complete the workflow.
+
+    Args:
+        input_entity: The entity to finalize
+
+    Returns:
+        The finalized entity
+    """
+    # TODO: Implement finalization logic
+    # Example:
+    # entity.update_entity(input_entity.id, {"status": "completed"})
+
+    return input_entity
+
+
+def register_workflow(workflow_name: str = "my_workflow"):
+    """
+    Register the workflow with its steps.
+
+    Args:
+        workflow_name: Name of the workflow to register
+
+    Returns:
+        The registered workflow definition
+    """
+    # Register step handlers
+    process.register_step_handler(f"{workflow_name}_validate", step_validate)
+    process.register_step_handler(f"{workflow_name}_process", step_process)
+    process.register_step_handler(f"{workflow_name}_finalize", step_finalize)
+
+    # Define the process
+    workflow = process.define_process(workflow_name, [
+        f"{workflow_name}_validate",
+        f"{workflow_name}_process",
+        f"{workflow_name}_finalize"
+    ])
+
+    return workflow
+
+
+def execute_workflow(input_entity: Any, workflow_name: str = "my_workflow") -> Any:
+    """
+    Execute the complete workflow.
+
+    Args:
+        input_entity: The entity to process through the workflow
+        workflow_name: Name of the workflow to execute
+
+    Returns:
+        The final processed entity
+
+    Example:
+        >>> from genesis_core import entity
+        >>> my_entity = entity.create_entity("MyType", {"data": "value"})
+        >>> result = execute_workflow(my_entity)
+        >>> print(result)
+    """
+    result = process.execute_process(workflow_name, input_entity)
+    return result
+
+
+# TODO: Rename this module and adapt the functions for your specific use case
+# TODO: Update workflow_name to match your domain (e.g., "hiring", "approval", "order_processing")
+# TODO: Add domain-specific validation rules
+# TODO: Implement actual business logic in each step
