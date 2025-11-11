@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "genesis-core"
 version = "1.0.0"
-description = "Frozen Core modules for building unbreakable systems"
+description = "Frozen Core modules for unbreakable systems"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
